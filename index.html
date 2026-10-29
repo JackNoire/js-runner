@@ -1,0 +1,28 @@
+<script>
+(function(){
+  var params = new URLSearchParams(location.search);
+  var code = params.get("code") || "";
+  var logs = [];
+
+  var originalLog = console.log;
+  console.log = function(){
+    logs.push(Array.from(arguments).map(function(a){
+      return typeof a === "object" ? JSON.stringify(a) : String(a);
+    }).join(" "));
+    originalLog.apply(console, arguments);
+  };
+
+  logs.push(">> Code received:\n" + code + "\n");
+  logs.push(">> Output:");
+
+  try {
+    new Function(code)();
+  } catch(e) {
+    logs.push("Error: " + e.message);
+  }
+
+  document.open();
+  document.write(logs.join("\n"));
+  document.close();
+})();
+</script>
